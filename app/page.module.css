@@ -1,7 +1,13 @@
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+    width: 75%;
+    height: fit-content; /* Let content determine height */
+    padding: 50px;
+    max-width: none; /* Remove max-width restriction */
+    padding-bottom: 50px; /* Reduce the excessive bottom padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+    justify-items: center;
 }
 
 .container h1 {
@@ -12,14 +18,20 @@
 
 .contentLayout {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 280px 1fr;
     gap: 20px;
+    width: 100%;
+    /* Remove aspect-ratio to allow height control */
+    height: 50%; /* Set a fixed height instead of percentage */
+    overflow-y: hidden;
+    position: relative; /* For absolute positioning of sidebar */
+    justify-content: center;
+    justify-self: center;
 }
 
-@media (max-width: 768px) {
-    .contentLayout {
-        grid-template-columns: 1fr;
-    }
+/* Make the trip list sidebar match the calendar height */
+.sidebar {
+    height: 100%;
 }
 
 .tripsContainer {
@@ -28,6 +40,8 @@
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    height: 100%;
+    overflow-y: hidden; /* Add scroll if needed */
 }
 
 .tripsContainer h2 {

@@ -1,6 +1,6 @@
 .calendar {
     width: 100%;
-    max-width: 800px;
+    height: fit-content; /* Ensure full height */
     margin: 0 auto;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
@@ -9,6 +9,33 @@
     background-color: #121212;
     color: #ffffff;
     font-family: 'Inter', 'Roboto', -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+.header,
+.weekdays {
+    flex-shrink: 0; /* Prevent header and weekdays from shrinking */
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr; /* Equal height rows */
+    gap: 4px;
+    padding: 8px;
+    background-color: rgba(18, 18, 18, 0.8);
+    flex: 1; /* Take up all available space */
+    min-height: 0; /* Important for flex containers to allow proper sizing */
+}
+
+.day {
+    position: relative;
+    /* Make days square by using aspect ratio */
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .header {
@@ -78,26 +105,27 @@
 .days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    /* Make each day cell a square */
+    grid-auto-rows: 1fr;
     gap: 4px;
     padding: 8px;
     background-color: rgba(18, 18, 18, 0.8);
+    aspect-ratio: 1.75/1; /* Force the days container to be square */
+    width: 100%;
 }
 
 .day {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1/1;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    position: relative;
     cursor: pointer;
     border-radius: 8px;
     transition: all 0.2s ease;
     font-size: 1rem;
     color: #ffffff;
-    position: relative;
-    flex-direction: column;
-
-    /* Prevent text selection during drag operations */
+    padding-bottom: 16px; /* Space for trip name */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -134,8 +162,10 @@
 }
 
 .dayNumber {
-    font-size: 1rem;
-    margin-bottom: 2px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 0.9rem;
 }
 
 .tripIndicators {
@@ -317,10 +347,23 @@
 
 /* Make day cells larger to fit trip name */
 .day {
-    aspect-ratio: 1 / 1;
-    min-height: 50px;
-    padding-bottom: 16px; /* Space for trip name */
+    aspect-ratio: auto; /* Remove aspect ratio constraint */
+    min-height: 80px; /* Set minimum height instead */
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    color: #ffffff;
+    padding-bottom: 16px; /* Space for trip name */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .tripIndicators {
