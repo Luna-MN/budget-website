@@ -1,0 +1,80 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.container h1 {
+    margin-bottom: 30px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.contentLayout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .contentLayout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tripsContainer {
+    margin-top: 30px;
+    background-color: rgba(30, 30, 30, 0.7);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tripsContainer h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #fff;
+    font-size: 1.4rem;
+}
+
+.tripsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tripButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: transparent;
+    border: 2px solid;
+    font-size: 0.95rem;
+}
+
+.tripButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tripButtonSelected {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+}
+
+.tripColorDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.tripDays {
+    opacity: 0.7;
+    font-size: 0.85rem;
+    margin-left: 4px;
+}

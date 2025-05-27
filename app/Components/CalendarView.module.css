@@ -1,0 +1,342 @@
+.calendar {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Inter', 'Roboto', -apple-system, sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 16px;
+    background-color: rgba(30, 30, 30, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.header button:active {
+    transform: translateY(0);
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: rgba(24, 144, 255, 0.15);
+    padding: 10px 20px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: rgba(30, 30, 30, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 5px 5px;
+}
+
+.weekday {
+    text-align: center;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 4px;
+    padding: 8px;
+    background-color: rgba(18, 18, 18, 0.8);
+}
+
+.day {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    color: #ffffff;
+    position: relative;
+    flex-direction: column;
+
+    /* Prevent text selection during drag operations */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.day:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.today {
+    background-color: rgba(24, 144, 255, 0.2);
+    font-weight: bold;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.5);
+    color: #1890ff;
+}
+
+.selected {
+    background-color: #1890ff;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+.selected:hover {
+    background-color: #40a9ff;
+}
+
+.otherMonth {
+    color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(20, 20, 20, 0.5);
+}
+
+.dayNumber {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.tripIndicators {
+    display: flex;
+    gap: 2px;
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    justify-content: center;
+}
+
+.tripDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.contextMenu {
+    position: fixed;
+    background-color: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.menuItem {
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.menuItem:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #fff;
+    font-size: 1.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 12px;
+}
+
+.formGroup {
+    margin-bottom: 16px;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.formGroup input[type='text'] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: #2a2a2a;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.formGroup input[type='color'] {
+    width: 100%;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.tripDates {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.tripDates p {
+    margin: 0 0 4px 0;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.dateRange {
+    font-weight: 600;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modalActions button {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancelButton {
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.cancelButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.createButton {
+    background-color: #1890ff;
+    border: none;
+    color: white;
+}
+
+.createButton:hover {
+    background-color: #40a9ff;
+}
+
+/* Add these styles to your existing CSS file */
+
+.inSelectedTrip {
+    box-shadow: inset 0 0 0 2px currentColor;
+    transform: scale(1.03);
+    z-index: 2;
+}
+
+.selectedTripDot {
+    transform: scale(1.5);
+}
+
+.tripNameIndicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2px 4px;
+    font-size: 0.7rem;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+/* Make day cells larger to fit trip name */
+.day {
+    aspect-ratio: 1 / 1;
+    min-height: 50px;
+    padding-bottom: 16px; /* Space for trip name */
+    position: relative;
+}
+
+.tripIndicators {
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+}
+
+/* Update positioning of day number to make room for trip name */
+.dayNumber {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 0.9rem;
+}
