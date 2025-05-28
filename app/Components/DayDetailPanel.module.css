@@ -1,0 +1,222 @@
+.panel {
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.header {
+    padding: 16px 20px;
+    position: relative;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.date {
+    margin-top: 4px;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.closeButton {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    font-size: 18px;
+}
+
+.closeButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.budget {
+    padding: 16px 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.budgetHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.budgetHeader h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.budgetAmount {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.budgetStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+}
+
+.negative {
+    color: #ff6b6b;
+}
+
+.budgetBar {
+    width: 100%;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.budgetProgress {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.addActivity {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.addActivity h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.activityForm {
+    display: grid;
+    grid-template-columns: 100px 1fr 80px 60px;
+    gap: 8px;
+    align-items: center;
+}
+
+.priceInput {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.priceInput span {
+    position: absolute;
+    left: 10px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.priceInput input {
+    padding-left: 20px;
+}
+
+.activityForm input {
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.activityForm button {
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.activityForm button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.activities {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.activities h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 24px;
+    opacity: 0.5;
+    font-style: italic;
+}
+
+.activityList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.activityItem {
+    display: grid;
+    grid-template-columns: 70px 1fr 80px 30px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.activityItem:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.activityTime {
+    font-weight: bold;
+}
+
+.activityDescription {
+    padding: 0 8px;
+}
+
+.day {
+    /* Optimize day cell sizing */
+    aspect-ratio: auto;
+    min-height: 60px; /* Reduce from 80px to fit all rows */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Other styles remain the same */
+}

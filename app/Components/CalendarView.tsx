@@ -2,13 +2,29 @@ import React, { useState, useEffect } from 'react';
 import styles from './CalendarView.module.css';
 import TripCreationModal from './TripCreationModal';
 import ContextMenu from './ContextMenu';
+import DayDetailPanel from './DayDetailPanel';
 
 // Trip interface
+interface Activity {
+    id: string;
+    time: string;
+    description: string;
+    price: number;
+}
+
+interface TripDay {
+    date: Date;
+    activities: Activity[];
+    dailyBudget: number;
+}
+
 interface Trip {
     id: string;
     name: string;
     color: string;
     dates: Date[];
+    dailyBudget: number;
+    days?: TripDay[]; // Add this to store day-specific data
 }
 
 interface CalendarViewProps {
@@ -17,6 +33,7 @@ interface CalendarViewProps {
     onCreateTrip?: (trip: Trip) => void;
     trips?: Trip[];
     selectedTripId?: string | null;
+    onUpdateTripDay?: (tripId: string, day: TripDay) => void;
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({
@@ -25,6 +42,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     onCreateTrip,
     trips = [],
     selectedTripId = null,
+    onUpdateTripDay,
 }) => {
     // Calendar navigation state
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -42,6 +60,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         y: 0,
     });
     const [showModal, setShowModal] = useState(false);
+    const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+    const [showDayDetail, setShowDayDetail] = useState(false);
 
     // Helper values
     const currentMonth = currentDate.getMonth();
@@ -83,7 +103,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         }
 
         // Add days from next month
-        const remainingSlots = 42 - days.length; // 6 rows of 7 days
+        const totalCurrentDays = days.length;
+        const rowsNeeded = Math.ceil(totalCurrentDays / 7);
+        const neededRows =
+            rowsNeeded === 5 || rowsNeeded === 6 ? rowsNeeded : 6;
+        const totalDaysNeeded = neededRows * 7;
+        const remainingSlots = totalDaysNeeded - days.length;
+
         for (let i = 1; i <= remainingSlots; i++) {
             const nextMonthDate = new Date(
                 currentYear,
@@ -133,6 +159,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             setSelectedDates([date]);
             setSelectedDate(date);
             setContextMenu({ show: false, x: 0, y: 0 });
+
+            // If it's a trip day, also handle day selection
+            const isInTrip = trips.some((trip) =>
+                trip.dates.some((tripDate) => isSameDay(tripDate, date))
+            );
+
+            if (isInTrip) {
+                handleDayClick(date);
+            }
         }
     };
 
@@ -183,10 +218,119 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         setShowModal(true);
     };
 
-    const handleNewTrip = (trip: Trip) => {
+    // Adapter function to handle different Trip interfaces
+    const handleNewTrip = (modalTrip: any) => {
+        // Ensure the trip has the dailyBudget property required by this component
+        const completeTrip: Trip = {
+            ...modalTrip,
+            dailyBudget: modalTrip.dailyBudget || 0, // Default to 0 if not provided
+        };
+
         if (onCreateTrip) {
-            onCreateTrip(trip);
+            onCreateTrip(completeTrip);
         }
+    };
+
+    // Day click handler
+    const handleDayClick = (date: Date) => {
+        // Check if the clicked day is part of any trip
+        const tripsForThisDay = trips.filter((trip) =>
+            trip.dates.some((tripDate) => isSameDay(tripDate, date))
+        );
+
+        if (tripsForThisDay.length > 0) {
+            setSelectedDay(date);
+            setShowDayDetail(true);
+
+            if (onDayClick) {
+                onDayClick(date);
+            }
+        }
+    };
+
+    // Get the trip for the selected day
+    const getSelectedDayTrip = (): Trip | undefined => {
+        if (!selectedDay) return undefined;
+
+        // If there's a selectedTripId, use that trip if it contains the day
+        if (selectedTripId) {
+            const trip = trips.find((t) => t.id === selectedTripId);
+            if (trip && trip.dates.some((d) => isSameDay(d, selectedDay))) {
+                return trip;
+            }
+        }
+
+        // Otherwise return the first trip that contains this day
+        return trips.find((trip) =>
+            trip.dates.some((d) => isSameDay(d, selectedDay))
+        );
+    };
+
+    // Functions to handle activities
+    const handleAddActivity = (activity: Activity) => {
+        const trip = getSelectedDayTrip();
+        if (!trip || !selectedDay || !onUpdateTripDay) return;
+
+        // Create or update the day's activities
+        const existingDayIndex =
+            trip.days?.findIndex((day) => isSameDay(day.date, selectedDay)) ??
+            -1;
+
+        if (existingDayIndex >= 0 && trip.days) {
+            // Update existing day
+            const updatedDays = [...trip.days];
+            updatedDays[existingDayIndex] = {
+                ...updatedDays[existingDayIndex],
+                activities: [
+                    ...updatedDays[existingDayIndex].activities,
+                    activity,
+                ],
+            };
+
+            onUpdateTripDay(trip.id, updatedDays[existingDayIndex]);
+        } else {
+            // Create new day
+            const newDay: TripDay = {
+                date: new Date(selectedDay),
+                activities: [activity],
+                dailyBudget: trip.dailyBudget,
+            };
+
+            onUpdateTripDay(trip.id, newDay);
+        }
+    };
+
+    const handleDeleteActivity = (activityId: string) => {
+        const trip = getSelectedDayTrip();
+        if (!trip || !selectedDay || !onUpdateTripDay) return;
+
+        const existingDayIndex =
+            trip.days?.findIndex((day) => isSameDay(day.date, selectedDay)) ??
+            -1;
+
+        if (existingDayIndex >= 0 && trip.days) {
+            // Update existing day
+            const updatedDays = [...trip.days];
+            updatedDays[existingDayIndex] = {
+                ...updatedDays[existingDayIndex],
+                activities: updatedDays[existingDayIndex].activities.filter(
+                    (a) => a.id !== activityId
+                ),
+            };
+
+            onUpdateTripDay(trip.id, updatedDays[existingDayIndex]);
+        }
+    };
+
+    // Get the activities for the selected day
+    const getSelectedDayActivities = (): Activity[] => {
+        const trip = getSelectedDayTrip();
+        if (!trip || !selectedDay) return [];
+
+        const dayData = trip.days?.find((day) =>
+            isSameDay(day.date, selectedDay)
+        );
+        return dayData?.activities || [];
     };
 
     // Global event listeners
@@ -212,68 +356,82 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         };
     }, [isDragging, selectedDates, contextMenu.show]);
 
+    // Add this to your component's render function
+    const calendarDays = generateDays();
+    const neededRows = Math.ceil(calendarDays.length / 7);
+
     return (
-        <div className={styles.calendar} onContextMenu={handleContextMenu}>
-            {/* Header with month navigation */}
-            <div className={styles.header}>
-                <button onClick={prevMonth}>
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M15 18L9 12L15 6"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </button>
-                <h2>
-                    {monthName} {currentYear}
-                </h2>
-                <button onClick={nextMonth}>
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M9 6L15 12L9 18"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </button>
-            </div>
+        <div
+            className={`${styles.calendarWrapper} ${
+                showDayDetail ? styles.withPanel : ''
+            }`}
+        >
+            <div className={styles.calendar} onContextMenu={handleContextMenu}>
+                {/* Header with month navigation */}
+                <div className={styles.header}>
+                    <button onClick={prevMonth}>
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M15 18L9 12L15 6"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    </button>
+                    <h2>
+                        {monthName} {currentYear}
+                    </h2>
+                    <button onClick={nextMonth}>
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M9 6L15 12L9 18"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    </button>
+                </div>
 
-            {/* Weekday headers */}
-            <div className={styles.weekdays}>
-                {weekdays.map((day) => (
-                    <div key={day} className={styles.weekday}>
-                        {day}
-                    </div>
-                ))}
-            </div>
+                {/* Weekday headers */}
+                <div className={styles.weekdays}>
+                    {weekdays.map((day) => (
+                        <div key={day} className={styles.weekday}>
+                            {day}
+                        </div>
+                    ))}
+                </div>
 
-            {/* Calendar grid */}
-            <div className={styles.days}>
-                {generateDays().map((date, index) => {
-                    const dateTrips = getTripsForDate(date);
-                    const isInSelectedTrip = isDayInSelectedTrip(date);
+                {/* Calendar grid */}
+                <div
+                    className={styles.days}
+                    style={{
+                        gridTemplateRows: `repeat(${neededRows}, 1fr)`,
+                    }}
+                >
+                    {calendarDays.map((date, index) => {
+                        const dateTrips = getTripsForDate(date);
+                        const isInSelectedTrip = isDayInSelectedTrip(date);
 
-                    return (
-                        <div
-                            key={index}
-                            className={`
+                        return (
+                            <div
+                                key={index}
+                                className={`
                                 ${styles.day}
                                 ${isToday(date) ? styles.today : ''}
                                 ${isSelected(date) ? styles.selected : ''}
@@ -284,75 +442,96 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                 }
                                 ${isInSelectedTrip ? styles.inSelectedTrip : ''}
                             `}
-                            onMouseDown={(e) => handleMouseDown(date, e)}
-                            onMouseEnter={() => handleMouseEnter(date)}
-                            onMouseUp={handleMouseUp}
-                        >
-                            <span className={styles.dayNumber}>
-                                {date.getDate()}
-                            </span>
+                                onMouseDown={(e) => handleMouseDown(date, e)}
+                                onMouseEnter={() => handleMouseEnter(date)}
+                                onMouseUp={handleMouseUp}
+                            >
+                                <span className={styles.dayNumber}>
+                                    {date.getDate()}
+                                </span>
 
-                            {/* Trip indicators */}
-                            {dateTrips.length > 0 && (
-                                <div className={styles.tripIndicators}>
-                                    {dateTrips.map((trip) => {
-                                        const isSelected =
-                                            trip.id === selectedTripId;
-                                        return (
-                                            <div
-                                                key={trip.id}
-                                                className={`${styles.tripDot} ${
-                                                    isSelected
-                                                        ? styles.selectedTripDot
-                                                        : ''
-                                                }`}
-                                                style={{
-                                                    backgroundColor: trip.color,
-                                                }}
-                                                title={trip.name}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            )}
+                                {/* Trip indicators */}
+                                {dateTrips.length > 0 && (
+                                    <div className={styles.tripIndicators}>
+                                        {dateTrips.map((trip) => {
+                                            const isSelected =
+                                                trip.id === selectedTripId;
+                                            return (
+                                                <div
+                                                    key={trip.id}
+                                                    className={`${
+                                                        styles.tripDot
+                                                    } ${
+                                                        isSelected
+                                                            ? styles.selectedTripDot
+                                                            : ''
+                                                    }`}
+                                                    style={{
+                                                        backgroundColor:
+                                                            trip.color,
+                                                    }}
+                                                    title={trip.name}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                )}
 
-                            {/* Trip name indicator */}
-                            {isInSelectedTrip && selectedTripId && (
-                                <div
-                                    className={styles.tripNameIndicator}
-                                    style={{
-                                        backgroundColor:
+                                {/* Trip name indicator */}
+                                {isInSelectedTrip && selectedTripId && (
+                                    <div
+                                        className={styles.tripNameIndicator}
+                                        style={{
+                                            backgroundColor:
+                                                trips.find(
+                                                    (t) =>
+                                                        t.id === selectedTripId
+                                                )?.color + 'B3',
+                                        }}
+                                    >
+                                        {
                                             trips.find(
                                                 (t) => t.id === selectedTripId
-                                            )?.color + 'B3',
-                                    }}
-                                >
-                                    {
-                                        trips.find(
-                                            (t) => t.id === selectedTripId
-                                        )?.name
-                                    }
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
+                                            )?.name
+                                        }
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Context menu and modal */}
+                <ContextMenu
+                    show={contextMenu.show}
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    onCreateTrip={handleCreateTrip}
+                />
+
+                <TripCreationModal
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    onCreateTrip={handleNewTrip}
+                    selectedDates={selectedDates}
+                />
             </div>
 
-            {/* Context menu and modal */}
-            <ContextMenu
-                show={contextMenu.show}
-                x={contextMenu.x}
-                y={contextMenu.y}
-                onCreateTrip={handleCreateTrip}
-            />
-
-            <TripCreationModal
-                show={showModal}
-                onClose={() => setShowModal(false)}
-                onCreateTrip={handleNewTrip}
-                selectedDates={selectedDates}
-            />
+            {showDayDetail && selectedDay && (
+                <div className={styles.detailPanelContainer}>
+                    <DayDetailPanel
+                        date={selectedDay}
+                        tripId={getSelectedDayTrip()?.id || ''}
+                        tripName={getSelectedDayTrip()?.name || ''}
+                        tripColor={getSelectedDayTrip()?.color || '#cccccc'}
+                        dailyBudget={getSelectedDayTrip()?.dailyBudget || 0}
+                        onClose={() => setShowDayDetail(false)}
+                        onActivityAdd={handleAddActivity}
+                        onActivityDelete={handleDeleteActivity}
+                        activities={getSelectedDayActivities()}
+                    />
+                </div>
+            )}
         </div>
     );
 };
