@@ -26,9 +26,11 @@ const TripCreationModal: React.FC<TripCreationModalProps> = ({
     const [newTrip, setNewTrip] = React.useState<{
         name: string;
         color: string;
+        currency: string;
     }>({
         name: '',
         color: initialColor,
+        currency: '$', // Default currency
     });
 
     const modalRef = useRef<HTMLDivElement>(null);
@@ -50,6 +52,7 @@ const TripCreationModal: React.FC<TripCreationModalProps> = ({
             setNewTrip({
                 name: '',
                 color: initialColor,
+                currency: '$',
             });
 
             onClose();
@@ -114,6 +117,51 @@ const TripCreationModal: React.FC<TripCreationModalProps> = ({
                                 })
                             }
                         />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>Currency</label>
+                        <div className={styles.currencySelector}>
+                            <button
+                                type="button"
+                                className={`${styles.currencyButton} ${
+                                    newTrip.currency === '$'
+                                        ? styles.selected
+                                        : ''
+                                }`}
+                                onClick={() =>
+                                    setNewTrip({ ...newTrip, currency: '$' })
+                                }
+                            >
+                                $ USD
+                            </button>
+                            <button
+                                type="button"
+                                className={`${styles.currencyButton} ${
+                                    newTrip.currency === '£'
+                                        ? styles.selected
+                                        : ''
+                                }`}
+                                onClick={() =>
+                                    setNewTrip({ ...newTrip, currency: '£' })
+                                }
+                            >
+                                £ GBP
+                            </button>
+                            <button
+                                type="button"
+                                className={`${styles.currencyButton} ${
+                                    newTrip.currency === '€'
+                                        ? styles.selected
+                                        : ''
+                                }`}
+                                onClick={() =>
+                                    setNewTrip({ ...newTrip, currency: '€' })
+                                }
+                            >
+                                € EUR
+                            </button>
+                        </div>
                     </div>
 
                     <div className={styles.tripDates}>

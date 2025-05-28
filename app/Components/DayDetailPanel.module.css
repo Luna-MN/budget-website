@@ -76,8 +76,21 @@
 }
 
 .budgetAmount {
-    font-weight: bold;
-    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.budgetAmount:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.budgetAmount .editIcon {
+    opacity: 0.7;
 }
 
 .budgetStats {
@@ -128,19 +141,24 @@
 }
 
 .priceInput {
-    position: relative;
     display: flex;
     align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 0 8px;
 }
 
 .priceInput span {
-    position: absolute;
-    left: 10px;
-    color: rgba(255, 255, 255, 0.6);
+    margin-right: 4px;
+    opacity: 0.8;
 }
 
 .priceInput input {
-    padding-left: 20px;
+    background: transparent;
+    color: white;
+    padding: 8px 0;
+    width: 80px;
+    text-align: right;
 }
 
 .activityForm input {
@@ -190,12 +208,13 @@
 }
 
 .activityItem {
-    display: grid;
-    grid-template-columns: 70px 1fr 80px 30px;
+    display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 10px 12px;
     border-radius: 8px;
+    margin-bottom: 8px;
     background-color: rgba(255, 255, 255, 0.05);
+    transition: background-color 0.2s;
 }
 
 .activityItem:hover {
@@ -219,4 +238,120 @@
     align-items: center;
     justify-content: center;
     /* Other styles remain the same */
+}
+
+.dayNameContainer {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.dayName {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.dayName:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.editIcon {
+    margin-left: 8px;
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.addDayName {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.nameEditForm {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.nameInput {
+    flex: 1;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    margin-right: 8px;
+}
+
+.saveNameBtn {
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+.saveNameBtn:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.currencySelector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.currencyButton {
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.currencyButton:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.currencyButton.selected {
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.budgetEditForm {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.addButton,
+.saveButton {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.addButton:hover,
+.saveButton:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.addButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.activityPrice {
+    margin-left: auto;
+    margin-right: 8px;
+    font-weight: 500;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
 }

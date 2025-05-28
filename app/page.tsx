@@ -17,6 +17,7 @@ interface TripDay {
     date: Date;
     activities: Activity[];
     dailyBudget: number;
+    name?: string;
 }
 
 interface Trip {
@@ -26,6 +27,7 @@ interface Trip {
     dates: Date[];
     dailyBudget: number;
     days?: TripDay[];
+    currency?: string; // Add currency option
 }
 
 export default function Home() {
@@ -44,6 +46,7 @@ export default function Home() {
             ...trip,
             dailyBudget: trip.dailyBudget || 100, // Default daily budget
             days: [],
+            currency: trip.currency || '$', // Default to dollars if not specified
         };
 
         setTrips([...trips, newTrip]);
@@ -56,11 +59,21 @@ export default function Home() {
             return currentTrips.map((trip) => {
                 if (trip.id !== tripId) return trip;
 
-                // Find if this day already exists
+                // Find if this day already exists (ensure both are Date objects)
                 const existingDayIndex =
-                    trip.days?.findIndex(
-                        (d) => d.date.getTime() === day.date.getTime()
-                    ) ?? -1;
+                    trip.days?.findIndex((d) => {
+                        const dDate =
+                            d.date instanceof Date ? d.date : new Date(d.date);
+                        const dayDate =
+                            day.date instanceof Date
+                                ? day.date
+                                : new Date(day.date);
+                        return (
+                            dDate.getFullYear() === dayDate.getFullYear() &&
+                            dDate.getMonth() === dayDate.getMonth() &&
+                            dDate.getDate() === dayDate.getDate()
+                        );
+                    }) ?? -1;
 
                 const updatedDays = trip.days ? [...trip.days] : [];
 

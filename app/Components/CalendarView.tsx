@@ -16,6 +16,7 @@ interface TripDay {
     date: Date;
     activities: Activity[];
     dailyBudget: number;
+    name?: string;
 }
 
 interface Trip {
@@ -25,6 +26,7 @@ interface Trip {
     dates: Date[];
     dailyBudget: number;
     days?: TripDay[]; // Add this to store day-specific data
+    currency?: string; // Add currency property
 }
 
 interface CalendarViewProps {
@@ -360,6 +362,153 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const calendarDays = generateDays();
     const neededRows = Math.ceil(calendarDays.length / 7);
 
+    // Update TripDay interface to include name
+    interface TripDay {
+        date: Date;
+        activities: Activity[];
+        dailyBudget: number;
+        name?: string;
+    }
+
+    // Add a function to get the day name
+    const getDayName = (date: Date): string | undefined => {
+        for (const trip of trips) {
+            if (!trip.days) continue;
+
+            const day = trip.days.find(
+                (day) => day.date && isSameDay(new Date(day.date), date)
+            );
+
+            if (day?.name) return day.name;
+        }
+        return undefined;
+    };
+
+    // Update the rendering of days in the calendar
+    const renderDays = () => {
+        return calendarDays.map((date, index) => {
+            // Get other classes and logic as before
+            const isToday = isSameDay(date, new Date());
+            const isSelected = selectedDates.some((d) => isSameDay(d, date));
+            const isInCurrentMonth = date.getMonth() === currentDate.getMonth();
+
+            // Find if this day is part of a trip
+            const tripForDay = trips.find((trip) =>
+                trip.dates.some((tripDate) => isSameDay(tripDate, date))
+            );
+
+            // Get the day name if it exists
+            const dayName = getDayName(date);
+
+            return (
+                <div
+                    key={index}
+                    className={`
+                    ${styles.day}
+                    ${isToday ? styles.today : ''}
+                    ${isSelected ? styles.selected : ''}
+                    ${!isInCurrentMonth ? styles.otherMonth : ''}
+                    ${tripForDay ? styles.hasTrip : ''}
+                    ${
+                        tripForDay && selectedTripId === tripForDay.id
+                            ? styles.inSelectedTrip
+                            : ''
+                    }
+                `}
+                    style={tripForDay ? { color: tripForDay.color } : {}}
+                    onMouseDown={(e) => handleMouseDown(date, e)}
+                    onMouseOver={() => handleMouseEnter(date)}
+                >
+                    <span className={styles.dayNumber}>{date.getDate()}</span>
+
+                    {/* Add this block to display day names */}
+                    {dayName && (
+                        <span className={styles.dayNameLabel}>{dayName}</span>
+                    )}
+
+                    {/* Your existing trip indicators */}
+                    {tripForDay && (
+                        <>
+                            <div className={styles.tripIndicators}>
+                                {/* Trip indicators content */}
+                            </div>
+                            <div
+                                className={styles.tripNameIndicator}
+                                style={{
+                                    backgroundColor: `${tripForDay.color}b3`,
+                                }}
+                            >
+                                {tripForDay.name}
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        });
+    };
+
+    // Update onDayNameChange handler
+    const handleDayNameChange = (name: string) => {
+        const trip = getSelectedDayTrip();
+        if (!trip || !selectedDay || !onUpdateTripDay) return;
+
+        const existingDayIndex =
+            trip.days?.findIndex((day) => isSameDay(day.date, selectedDay)) ??
+            -1;
+
+        if (existingDayIndex >= 0 && trip.days) {
+            // Update existing day
+            const updatedDays = [...trip.days];
+            updatedDays[existingDayIndex] = {
+                ...updatedDays[existingDayIndex],
+                name: name,
+            };
+
+            onUpdateTripDay(trip.id, updatedDays[existingDayIndex]);
+        } else {
+            // Create new day
+            const newDay: TripDay = {
+                date: new Date(selectedDay),
+                activities: [],
+                dailyBudget: trip.dailyBudget,
+                name: name,
+            };
+
+            onUpdateTripDay(trip.id, newDay);
+        }
+    };
+
+    // Add this handler function
+    const handleDailyBudgetChange = (budget: number) => {
+        if (!selectedDay || !selectedTripId) return;
+
+        const trip = getSelectedDayTrip();
+        if (!trip || !onUpdateTripDay) return;
+
+        // Create or update the day's budget, preserving all other fields
+        const existingDayIndex =
+            trip.days?.findIndex((day) => isSameDay(day.date, selectedDay)) ??
+            -1;
+
+        if (existingDayIndex >= 0 && trip.days) {
+            // Update existing day, preserve all fields
+            const updatedDays = [...trip.days];
+            updatedDays[existingDayIndex] = {
+                ...updatedDays[existingDayIndex],
+                dailyBudget: budget,
+            };
+            onUpdateTripDay(trip.id, updatedDays[existingDayIndex]);
+        } else {
+            // Create new day
+            const newDay: TripDay = {
+                date: new Date(selectedDay),
+                activities: [],
+                dailyBudget: budget,
+            };
+            onUpdateTripDay(trip.id, newDay);
+        }
+    };
+
     return (
         <div
             className={`${styles.calendarWrapper} ${
@@ -427,21 +576,18 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     {calendarDays.map((date, index) => {
                         const dateTrips = getTripsForDate(date);
                         const isInSelectedTrip = isDayInSelectedTrip(date);
+                        const dayName = getDayName(date); // Add this line
 
                         return (
                             <div
                                 key={index}
                                 className={`
-                                ${styles.day}
-                                ${isToday(date) ? styles.today : ''}
-                                ${isSelected(date) ? styles.selected : ''}
-                                ${
-                                    !isCurrentMonth(date)
-                                        ? styles.otherMonth
-                                        : ''
-                                }
-                                ${isInSelectedTrip ? styles.inSelectedTrip : ''}
-                            `}
+                ${styles.day}
+                ${isToday(date) ? styles.today : ''}
+                ${isSelected(date) ? styles.selected : ''}
+                ${!isCurrentMonth(date) ? styles.otherMonth : ''}
+                ${isInSelectedTrip ? styles.inSelectedTrip : ''}
+            `}
                                 onMouseDown={(e) => handleMouseDown(date, e)}
                                 onMouseEnter={() => handleMouseEnter(date)}
                                 onMouseUp={handleMouseUp}
@@ -449,6 +595,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                 <span className={styles.dayNumber}>
                                     {date.getDate()}
                                 </span>
+
+                                {/* Add this block for day names */}
+                                {dayName && (
+                                    <span className={styles.dayNameLabel}>
+                                        {dayName}
+                                    </span>
+                                )}
 
                                 {/* Trip indicators */}
                                 {dateTrips.length > 0 && (
@@ -524,11 +677,25 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                         tripId={getSelectedDayTrip()?.id || ''}
                         tripName={getSelectedDayTrip()?.name || ''}
                         tripColor={getSelectedDayTrip()?.color || '#cccccc'}
-                        dailyBudget={getSelectedDayTrip()?.dailyBudget || 0}
+                        dailyBudget={
+                            (getSelectedDayTrip()?.days?.find((day) =>
+                                isSameDay(day.date, selectedDay)
+                            )?.dailyBudget ??
+                                getSelectedDayTrip()?.dailyBudget) ||
+                            0
+                        }
                         onClose={() => setShowDayDetail(false)}
                         onActivityAdd={handleAddActivity}
                         onActivityDelete={handleDeleteActivity}
                         activities={getSelectedDayActivities()}
+                        dayName={
+                            getSelectedDayTrip()?.days?.find((day) =>
+                                isSameDay(day.date, selectedDay)
+                            )?.name || ''
+                        }
+                        onDayNameChange={handleDayNameChange}
+                        onDailyBudgetChange={handleDailyBudgetChange} // Add this
+                        currency={getSelectedDayTrip()?.currency || '$'} // Make sure this is passed
                     />
                 </div>
             )}

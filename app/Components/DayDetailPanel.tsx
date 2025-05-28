@@ -18,6 +18,10 @@ interface DayDetailPanelProps {
     onActivityAdd: (activity: Activity) => void;
     onActivityDelete: (activityId: string) => void;
     activities?: Activity[];
+    dayName?: string;
+    onDayNameChange: (name: string) => void;
+    onDailyBudgetChange: (budget: number) => void; // Add this
+    currency?: string; // Add this
 }
 
 const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
@@ -30,6 +34,10 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
     onActivityAdd,
     onActivityDelete,
     activities = [],
+    dayName = '',
+    onDayNameChange,
+    onDailyBudgetChange,
+    currency = '$', // Make sure this has a default
 }) => {
     const [newActivity, setNewActivity] = useState<Partial<Activity>>({
         time: '12:00',
@@ -80,6 +88,40 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
         });
     };
 
+    // Add state for day name editing
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [nameInput, setNameInput] = useState(dayName);
+
+    // Add this to handle name changes
+    useEffect(() => {
+        setNameInput(dayName);
+    }, [dayName]);
+
+    // Handle saving the day name
+    const handleSaveName = () => {
+        onDayNameChange(nameInput);
+        setIsEditingName(false);
+    };
+
+    // Add these state variables at the top with your other state declarations
+    const [isEditingBudget, setIsEditingBudget] = useState(false);
+    const [budgetInput, setBudgetInput] = useState(dailyBudget.toString());
+
+    // Add this effect to update budgetInput when dailyBudget changes
+    useEffect(() => {
+        setBudgetInput(dailyBudget.toString());
+    }, [dailyBudget]);
+
+    // Add this handler function
+    const handleSaveBudget = () => {
+        // You'll need to add an onDailyBudgetChange prop to your component
+        const newBudget = parseFloat(budgetInput);
+        if (!isNaN(newBudget) && newBudget >= 0) {
+            onDailyBudgetChange(newBudget); // Update the daily budget
+            setIsEditingBudget(false);
+        }
+    };
+
     return (
         <div className={styles.panel}>
             <div
@@ -88,6 +130,45 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
             >
                 <h2>{tripName}</h2>
                 <div className={styles.date}>{formattedDate}</div>
+
+                {/* Add day name editing UI */}
+                <div className={styles.dayNameContainer}>
+                    {isEditingName ? (
+                        <div className={styles.nameEditForm}>
+                            <input
+                                type="text"
+                                value={nameInput}
+                                onChange={(e) => setNameInput(e.target.value)}
+                                placeholder="Day name..."
+                                autoFocus
+                                className={styles.nameInput}
+                            />
+                            <button
+                                onClick={handleSaveName}
+                                className={styles.saveNameBtn}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    ) : (
+                        <div
+                            className={styles.dayName}
+                            onClick={() => setIsEditingName(true)}
+                        >
+                            {dayName ? (
+                                <>
+                                    {dayName}
+                                    <span className={styles.editIcon}>✎</span>
+                                </>
+                            ) : (
+                                <span className={styles.addDayName}>
+                                    + Add day name
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 <button className={styles.closeButton} onClick={onClose}>
                     ×
                 </button>
@@ -96,19 +177,56 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
             <div className={styles.budget}>
                 <div className={styles.budgetHeader}>
                     <h3>Daily Budget</h3>
-                    <div className={styles.budgetAmount}>
-                        ${dailyBudget.toFixed(2)}
-                    </div>
+                    {isEditingBudget ? (
+                        <div className={styles.budgetEditForm}>
+                            <div className={styles.priceInput}>
+                                <span>{currency}</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={budgetInput}
+                                    onChange={(e) =>
+                                        setBudgetInput(e.target.value)
+                                    }
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter')
+                                            handleSaveBudget();
+                                    }}
+                                />
+                            </div>
+                            <button
+                                className={styles.saveButton}
+                                onClick={handleSaveBudget}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    ) : (
+                        <div
+                            className={styles.budgetAmount}
+                            onClick={() => setIsEditingBudget(true)}
+                        >
+                            {currency}
+                            {dailyBudget.toFixed(2)}
+                            <span className={styles.editIcon}>✎</span>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.budgetStats}>
                     <div className={styles.stat}>
                         <span>Spent:</span>
-                        <span>${totalSpent.toFixed(2)}</span>
+                        <span>
+                            {currency}
+                            {totalSpent.toFixed(2)}
+                        </span>
                     </div>
                     <div className={styles.stat}>
                         <span>Remaining:</span>
                         <span className={remaining < 0 ? styles.negative : ''}>
-                            ${remaining.toFixed(2)}
+                            {currency}
+                            {remaining.toFixed(2)}
                         </span>
                     </div>
                 </div>
@@ -120,10 +238,9 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
                                 100,
                                 (totalSpent / dailyBudget) * 100
                             )}%`,
-                            backgroundColor:
-                                remaining < 0 ? '#ff6b6b' : tripColor,
+                            backgroundColor: tripColor,
                         }}
-                    />
+                    ></div>
                 </div>
             </div>
 
@@ -132,7 +249,7 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
                 <div className={styles.activityForm}>
                     <input
                         type="time"
-                        value={newActivity.time}
+                        value={newActivity.time || '12:00'}
                         onChange={(e) =>
                             setNewActivity({
                                 ...newActivity,
@@ -143,7 +260,7 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
                     <input
                         type="text"
                         placeholder="Activity description"
-                        value={newActivity.description}
+                        value={newActivity.description || ''}
                         onChange={(e) =>
                             setNewActivity({
                                 ...newActivity,
@@ -152,7 +269,7 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
                         }
                     />
                     <div className={styles.priceInput}>
-                        <span>$</span>
+                        <span>{currency}</span>
                         <input
                             type="number"
                             min="0"
@@ -167,7 +284,12 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
                             }
                         />
                     </div>
-                    <button onClick={handleAddActivity}>Add</button>
+                    <button
+                        onClick={handleAddActivity}
+                        disabled={!newActivity.description}
+                    >
+                        Add
+                    </button>
                 </div>
             </div>
 
@@ -191,7 +313,8 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
                                     {activity.description}
                                 </div>
                                 <div className={styles.activityPrice}>
-                                    ${activity.price.toFixed(2)}
+                                    {currency}
+                                    {activity.price.toFixed(2)}
                                 </div>
                                 <button
                                     className={styles.deleteButton}
