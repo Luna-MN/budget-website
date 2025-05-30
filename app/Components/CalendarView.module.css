@@ -26,17 +26,18 @@
     position: absolute;
     top: 0;
     right: 0;
-    transform: translateX(100%);
+    transform: none;
     width: 350px;
     height: 100%;
     transition: transform 0.3s ease;
-    z-index: 1;
+    z-index: 100;
 }
 
 /* When panel is shown, slide it in from the right */
 .withPanel .detailPanelContainer {
-    transform: translateX(0);
-    right: -370px; /* Position panel to the right of calendar */
+    left: 800px;
+    right: auto; /* Change from -370px to 0 */
+    transform: none;
 }
 
 /* The withPanel class no longer needs to adjust the calendar position */
