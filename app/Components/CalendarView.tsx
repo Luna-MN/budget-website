@@ -3,31 +3,9 @@ import styles from './CalendarView.module.css';
 import TripCreationModal from './TripCreationModal';
 import ContextMenu from './ContextMenu';
 import DayDetailPanel from './DayDetailPanel';
-
+import { get } from 'http';
+import { Trip, TripDay, Activity } from './Types';
 // Trip interface
-interface Activity {
-    id: string;
-    time: string;
-    description: string;
-    price: number;
-}
-
-interface TripDay {
-    date: Date;
-    activities: Activity[];
-    dailyBudget: number;
-    name?: string;
-}
-
-interface Trip {
-    id: string;
-    name: string;
-    color: string;
-    dates: Date[];
-    dailyBudget: number;
-    days?: TripDay[]; // Add this to store day-specific data
-    currency?: string; // Add currency property
-}
 
 interface CalendarViewProps {
     onDayClick?: (date: Date) => void;
@@ -295,7 +273,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             const newDay: TripDay = {
                 date: new Date(selectedDay),
                 activities: [activity],
-                dailyBudget: trip.dailyBudget,
+                dailyBudget: trip.dailyBudget ?? 0,
             };
 
             onUpdateTripDay(trip.id, newDay);
@@ -470,7 +448,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             const newDay: TripDay = {
                 date: new Date(selectedDay),
                 activities: [],
-                dailyBudget: trip.dailyBudget,
+                dailyBudget: trip.dailyBudget ?? 0,
                 name: name,
             };
 
@@ -694,8 +672,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                             )?.name || ''
                         }
                         onDayNameChange={handleDayNameChange}
-                        onDailyBudgetChange={handleDailyBudgetChange} // Add this
-                        currency={getSelectedDayTrip()?.currency || '$'} // Make sure this is passed
+                        onDailyBudgetChange={handleDailyBudgetChange}
+                        currency={getSelectedDayTrip()?.currency || '$'}
                     />
                 </div>
             )}

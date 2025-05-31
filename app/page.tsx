@@ -4,31 +4,7 @@ import { useState } from 'react';
 import CalendarView from './Components/CalendarView';
 import TripsList from './Components/TripsList';
 import styles from './page.module.css';
-
-// Update interfaces
-interface Activity {
-    id: string;
-    time: string;
-    description: string;
-    price: number;
-}
-
-interface TripDay {
-    date: Date;
-    activities: Activity[];
-    dailyBudget: number;
-    name?: string;
-}
-
-interface Trip {
-    id: string;
-    name: string;
-    color: string;
-    dates: Date[];
-    dailyBudget: number;
-    days?: TripDay[];
-    currency?: string; // Add currency option
-}
+import { Trip, TripDay, Activity } from './Components/Types';
 
 export default function Home() {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
@@ -105,13 +81,12 @@ export default function Home() {
 
     return (
         <div className={styles.container}>
+            <TripsList
+                trips={trips}
+                selectedTripId={selectedTripId}
+                onTripSelect={handleTripSelect}
+            />
             <div className={styles.contentLayout}>
-                <TripsList
-                    trips={trips}
-                    selectedTripId={selectedTripId}
-                    onTripSelect={handleTripSelect}
-                />
-
                 <CalendarView
                     onDatesSelected={handleDatesSelected}
                     onCreateTrip={handleCreateTrip}

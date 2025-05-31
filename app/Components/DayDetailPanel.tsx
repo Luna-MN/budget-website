@@ -17,12 +17,14 @@ interface DayDetailPanelProps {
     onClose: () => void;
     onActivityAdd: (activity: Activity) => void;
     onActivityDelete: (activityId: string) => void;
+    onCurrencyChange?: (currency: string) => void;
     activities?: Activity[];
     dayName?: string;
     onDayNameChange: (name: string) => void;
-    onDailyBudgetChange: (budget: number) => void; // Add this
-    currency?: string; // Add this
+    onDailyBudgetChange: (budget: number) => void;
+    currency?: string;
 }
+const currencies = ['$', '€', '£'];
 
 const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
     date,
@@ -37,7 +39,7 @@ const DayDetailPanel: React.FC<DayDetailPanelProps> = ({
     dayName = '',
     onDayNameChange,
     onDailyBudgetChange,
-    currency = '$', // Make sure this has a default
+    currency = '$',
 }) => {
     const [newActivity, setNewActivity] = useState<Partial<Activity>>({
         time: '12:00',

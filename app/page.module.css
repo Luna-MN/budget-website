@@ -17,8 +17,8 @@
 .contentLayout {
     width: 100%;
     height: 700px; /* Increase from 600px to accommodate all calendar rows */
-    left: -300px;
     min-height: 600px; /* Increase minimum height too */
+    left: -100px;
     position: relative;
     overflow: show;
     display: flex;

@@ -1,12 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import styles from './CalendarView.module.css';
-
-interface Trip {
-    id: string;
-    name: string;
-    color: string;
-    dates: Date[];
-}
+import { Trip } from './Types';
 
 interface TripCreationModalProps {
     show: boolean;
@@ -44,6 +38,7 @@ const TripCreationModal: React.FC<TripCreationModalProps> = ({
                 name: newTrip.name,
                 color: newTrip.color,
                 dates: [...selectedDates],
+                currency: newTrip.currency,
             };
 
             onCreateTrip(trip);
